@@ -125,7 +125,7 @@ func TestTcpClient(t *testing.T) {
 	println(fmt.Sprintf("Conn %s <-> %s", conn.LocalAddr(), conn.RemoteAddr()))
 	bc := facote.NewBufferConn(conn)
 
-	err = fakec.Send(bc, "idimesh.helmsnets.com:5855", 10011, 20022)
+	err = fakec.Send(bc, "idimesh.helmsnets.com:5855", 10011)
 	if err != nil {
 		println(fmt.Sprintf("%s", err))
 		return
