@@ -79,14 +79,14 @@ func TestTcpServer(t *testing.T) {
 		println(fmt.Sprintf("Conn %s <-> %s", conn.LocalAddr(), conn.RemoteAddr()))
 		bc := facote.NewBufferConn(conn)
 
-		uc, qc, forerunner, err := fakes.Receive(bc)
+		uc, forerunner, err := fakes.Receive(bc)
 		if err != nil {
 			println(fmt.Sprintf("%s", err))
 			println(fmt.Sprintf("% x", forerunner))
 			println(fmt.Sprintf("%s", string(forerunner)))
 			return
 		}
-		println(fmt.Sprintf("Link sccessful, uc: %d, qc: %d", uc, qc))
+		println(fmt.Sprintf("Link sccessful, uc: %d", uc))
 		err = fakes.Send(bc)
 		if err != nil {
 			println(fmt.Sprintf("%s", err))

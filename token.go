@@ -44,6 +44,7 @@ func CheckToken(t string) (int, error) {
 	if err != nil {
 		return 0, errors.New(fmt.Sprintf("Json unmarshal error: %s", err))
 	}
+
 	if dt.Ps != opt.Ps {
 		return 0, errors.New("check token ps error")
 	}
@@ -57,11 +58,14 @@ func CheckToken(t string) (int, error) {
 
 func Encrypt(data []byte) []byte {
 	bytes := make([]byte, 0)
-	bytes = append(bytes, tokenHeader()...)
+	// 添加一个随机长度的头部，再每个正确字符前添加两个随机字符
+	head := tokenHeader()
+	bytes = append(bytes, head...)
 	for i := 0; i < len(data); i++ {
 		bytes = append(bytes, twoBytes()...)
 		bytes = append(bytes, data[i])
 	}
+	// 进行乱序
 	key := GetOption().Key
 	for i := 0; i < len(bytes); i++ {
 		index := bytes[i]
@@ -96,16 +100,16 @@ func Decrypt(data []byte) []byte {
 // C 为随机值
 func tokenHeader() []byte {
 	key := GetOption().Key
-	r := rand.New(rand.NewSource(time.Now().Unix()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	bytes := make([]byte, 0)
 	for i := 0; i < 3; i++ {
-		index := r.Intn(256)
+		index := r.Intn(len(key))
 		bytes = append(bytes, key[index])
 	}
 	count := r.Intn(30)
 	bytes = append(bytes, byte(count))
 	for i := 0; i < count; i++ {
-		index := r.Intn(256)
+		index := r.Intn(len(key))
 		bytes = append(bytes, key[index])
 	}
 	return bytes
@@ -115,10 +119,10 @@ func tokenHeader() []byte {
 func twoBytes() []byte {
 	// 获取两个随机的 ascii 码值
 	key := GetOption().Key
-	r := rand.New(rand.NewSource(time.Now().Unix()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	bytes := make([]byte, 0)
 	for i := 0; i < 2; i++ {
-		index := r.Intn(256)
+		index := r.Intn(len(key))
 		bytes = append(bytes, key[index])
 	}
 	return bytes

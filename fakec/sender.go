@@ -36,12 +36,7 @@ func CreateRequest(host string, uc int) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	th := ""
-	if option.Type == 0 {
-		th = "X-token"
-	} else {
-		th = "Ps"
-	}
+	th := "Ps"
 	Token := fmt.Sprintf("%s: %s", th, tv)
 	builder.AddHeader(Token)
 	// 请求头 Other
