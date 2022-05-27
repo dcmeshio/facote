@@ -1,7 +1,6 @@
 package facote
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -178,7 +177,6 @@ func defaultOption() *Option {
 		bytes[index] = byte(i)
 	}
 	opt.Unkey = bytes
-	println(fmt.Sprintf("%d", bytes))
 	return opt
 
 }
