@@ -9,6 +9,37 @@ import (
 	"time"
 )
 
+type CryptoToken struct {
+	Key string `json:"key"`
+	Ts  int64  `json:"ts"`
+	Ps  string `json:"ps"`
+}
+
+type CryptoKey struct {
+	Token string
+	Key   []byte
+	Unkey []byte
+}
+
+// 将字节码转换为 base64
+func (ck *CryptoKey) Encrypt(data []byte) []byte {
+	// 乱序
+	for i := 0; i < len(data); i++ {
+		index := data[i]
+		data[i] = ck.Key[index]
+	}
+	return data
+}
+
+func (ck *CryptoKey) Decrypt(data []byte) []byte {
+	// 正序
+	for i := 0; i < len(data); i++ {
+		index := data[i]
+		data[i] = ck.Unkey[index]
+	}
+	return data
+}
+
 type CryptoHelper struct {
 	count int // 插入随机数的数量
 	key   []byte
@@ -17,64 +48,99 @@ type CryptoHelper struct {
 	td    int64
 }
 
-func CreateHelper(count int, opt *Option) *CryptoHelper {
+func CreateHelper(count int, ps string, key []byte) *CryptoHelper {
+	// 计算反向 Key
+	bytes := make([]byte, 128)
+	for i := 0; i < len(key); i++ {
+		index := key[i]
+		bytes[index] = byte(i)
+	}
+	// 返回 Helper
 	return &CryptoHelper{
 		count: count,
-		key:   opt.Key,
-		unkey: opt.Unkey,
-		ps:    opt.Ps,
-		td:    opt.TimestampDifference,
+		key:   key,
+		unkey: bytes,
+		ps:    ps,
 	}
 }
 
-// 时差单独存放
+// 时差可后设置
 func (ch *CryptoHelper) SetTd(td int64) {
 	ch.td = td
 }
 
-func (ch *CryptoHelper) CreateToken(uc int) (string, error) {
-	t := &Token{}
-	t.Uc = uc
-	t.Ps = ch.ps
+func (ch *CryptoHelper) CreateToken() (*CryptoKey, error) {
+	// key
+	key := make([]byte, 0)
+	for i := 0; i < 128; i++ {
+		key = append(key, byte(i))
+	}
+	ShuffleBytes(key)
+	// unkey
+	unkey := make([]byte, 128)
+	for i := 0; i < len(key); i++ {
+		index := key[i]
+		unkey[index] = byte(i)
+	}
+	ck := &CryptoKey{
+		Key:   key,
+		Unkey: unkey,
+	}
+	// 创建 token
+	keybase := base64.StdEncoding.EncodeToString(key)
+	ct := &CryptoToken{}
+	ct.Key = keybase
+	ct.Ps = ch.ps
 	timestamp := time.Now().Unix()
-	t.Ts = timestamp + ch.td
+	ct.Ts = timestamp + ch.td
 	// 转换为 Json 字符串
-	data, err := json.Marshal(t)
+	data, err := json.Marshal(ct)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	encryptData := ch.Encrypt(data)
-	return base64.StdEncoding.EncodeToString(encryptData), nil
+	token := base64.StdEncoding.EncodeToString(encryptData)
+	ck.Token = token
+	return ck, nil
 }
 
 // Token 检测，可选择是否校验时间差
-func (ch *CryptoHelper) CheckToken(token string, checked bool) (int, error) {
+func (ch *CryptoHelper) CheckToken(token string, checked bool) (*CryptoKey, error) {
 	// Base64 解密
 	data, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
-		return 0, errors.New(fmt.Sprintf("Base64 decode error: %s", err))
+		return nil, errors.New(fmt.Sprintf("Base64 decode error: %s", err))
 	}
 	// 解密
 	decryptData := ch.Decrypt(data)
 	// Json 转换为对象
-	var dt *Token
-	err = json.Unmarshal(decryptData, &dt)
+	var ct *CryptoToken
+	err = json.Unmarshal(decryptData, &ct)
 	if err != nil {
-		return 0, errors.New(fmt.Sprintf("Json unmarshal error: %s", err))
+		return nil, errors.New(fmt.Sprintf("Json unmarshal error: %s", err))
 	}
 	// 校验密码
-	if dt.Ps != ch.ps {
-		return 0, errors.New("check token ps error")
+	if ct.Ps != ch.ps {
+		return nil, errors.New("check token ps error")
 	}
 	// 校验时差
 	if checked {
-		when := dt.Ts
+		when := ct.Ts
 		now := time.Now().Unix()
 		if now-when > 30 || now-when < -10 {
-			return 0, errors.New("check token timestamp error")
+			return nil, errors.New("check token timestamp error")
 		}
 	}
-	return dt.Uc, nil
+	// 返回
+	key, err := base64.StdEncoding.DecodeString(ct.Key)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Base64 decode error: %s", err))
+	}
+	ck := &CryptoKey{
+		Token: token,
+		Key:   key,
+	}
+	return ck, nil
 }
 
 // 对字节码数组加密

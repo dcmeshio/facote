@@ -130,7 +130,7 @@ func twoBytes() []byte {
 
 // 乱序给定的字节数组
 func ShuffleBytes(slice []byte) {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for len(slice) > 0 {
 		n := len(slice)
 		randIndex := r.Intn(n)
