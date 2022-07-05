@@ -162,6 +162,7 @@ func defaultOption() *Option {
 	}
 	ResponseHeaders = append(ResponseHeaders, Server)
 
+	// key 128 byte
 	opt := &Option{
 		Lines:               Lines,
 		RequestHeaders:      RequestHeaders,

@@ -26,7 +26,7 @@ func TestCreateToken(t *testing.T) {
 }
 
 func TestCheckToken(t *testing.T) {
-	uc, err := CheckToken("BQMyOh1XShFLBiUCXQtKQXYnWy4rFgRKUEwDcgNaB1paK39wEWFZURNXD3EFdFdwVVYSN3hKMU15UV4GT35KI20DfTdaAxEXFlJBUStkCWAXRy5wNnkXP3NaXzJZBDg1S1ESaRpKdT1zcRkGRC1KAQ0DVQhKKABQdlNQCUNQDRhKelkc")
+	uc, err := CheckToken("dGBoD10XAjMdSl0aJxhYKxdaShBRAxdvWjIPWjxAcBITWSwAVxQYBU1OcEUXEkwiShZdeUlYBkl5SnwPA1oRWnQDF1EAQVgOF2dQQWA9DgtdWTslBRZMDgtvcEBJEm8BSlYic2UDBnhlSjg2A0EhSkNXUAwOUDFRUAxTSgYNHA==")
 	if err != nil {
 		println(fmt.Sprintf("%s", err))
 		return

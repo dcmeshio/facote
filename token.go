@@ -23,7 +23,7 @@ func CreateToken(uc int, td int64) (string, error) {
 	t.Ps = opt.Ps
 	timestamp := time.Now().Unix()
 	t.Ts = timestamp + td
-	// 加密为字符串
+	// 转换为 Json 字符串
 	data, err := json.Marshal(t)
 	if err != nil {
 		return "", err
