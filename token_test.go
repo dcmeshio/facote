@@ -2,6 +2,7 @@ package facote
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"testing"
 )
 
@@ -89,6 +90,11 @@ func TestKeyBytes(t *testing.T) {
 	}
 	byteStr = fmt.Sprintf("%s]  ", byteStr)
 	println(byteStr)
+}
+
+func TestPs(t *testing.T) {
+	UUID := uuid.New()
+	println(UUID.String())
 }
 
 // 获取非控制字符的乱序 Key 33 ... 91 93...126 乱序，总长度 128

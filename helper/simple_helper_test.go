@@ -13,7 +13,7 @@ import (
 func TestCheck(t *testing.T) {
 	sch := sch()
 	// 客户端 通过 sch 创建私钥
-	ck, err := sch.createKey()
+	ck, err := sch.CreateKey()
 	if err != nil {
 		println(fmt.Sprintf("Error: %s", err))
 		return

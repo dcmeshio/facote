@@ -34,7 +34,7 @@ func CreateHelper(ps string, key []byte) *SimpleCryptoHelper {
 	}
 }
 
-func (sch *SimpleCryptoHelper) createKey() (*facote.CryptoKey, error) {
+func (sch *SimpleCryptoHelper) CreateKey() (*facote.CryptoKey, error) {
 	// key
 	key := make([]byte, 0)
 	for i := 0; i < 128; i++ {
